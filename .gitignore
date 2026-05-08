@@ -1,0 +1,15 @@
+# Compiled output
+http-server
+*.o
+*.a
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+# OS files
+.DS_Store
+Thumbs.db
+# Logs (we'll generate these at runtime)
+*.log
