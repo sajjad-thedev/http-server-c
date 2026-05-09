@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -17,6 +18,9 @@ int main(void) {
   }
   printf("Server socket created successfully on port %d (fd: %d)\n",
          DEFAULT_PORT, sockfd);
+
+  // handle SIGPIPE signal to prevent crash on broken connections
+  signal(SIGPIPE, SIG_IGN);
 
   // Accept infinite loop
   while (1) {
