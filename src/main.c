@@ -38,6 +38,23 @@ int main(void) {
     int client_port = ntohs(client_addr.sin_port);
     // Print client ip and port
     printf("Connection from : %s:%d\n", client_ip, client_port);
+
+    // Store the response from client
+    char buffer[BUFFER_SIZE];
+    ssize_t bytesReceived = recv(clientfd, buffer, sizeof(buffer) - 1, 0);
+    // buffer error handling
+    if (bytesReceived == -1) {
+      perror("recv");
+      close(clientfd);
+      continue;
+    } else if (bytesReceived == 0) {
+      close(clientfd);
+      continue;
+    } else {
+      // Terminate buffer with null terminator
+      buffer[bytesReceived] = '\0';
+      printf("Received %zd bytes:\n%s\n", bytesReceived, buffer);
+    }
     // Close clientfd
     close(clientfd);
   }
