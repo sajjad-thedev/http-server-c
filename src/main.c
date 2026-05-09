@@ -5,9 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 int main(void) {
+  // Create socket file descriptor
   int sockfd = create_server_socket(DEFAULT_PORT);
   if (sockfd == -1) {
     printf("Failed to create server socket\n");
@@ -55,6 +57,23 @@ int main(void) {
       buffer[bytesReceived] = '\0';
       printf("Received %zd bytes:\n%s\n", bytesReceived, buffer);
     }
+
+    // Send hardcoded response back to client
+    const char *response =
+        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: "
+        "13\r\n\r\nHello, World!";
+    ssize_t totalSent = 0;
+    ssize_t responseLength = strlen(response);
+    while (totalSent < responseLength) {
+      ssize_t sent =
+          send(clientfd, response + totalSent, responseLength - totalSent, 0);
+      if (sent == -1) {
+        perror("send");
+        break;
+      }
+      totalSent += sent;
+    }
+
     // Close clientfd
     close(clientfd);
   }
