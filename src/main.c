@@ -1,5 +1,11 @@
 #include "server.h"
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netinet/in.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 int main(void) {
   int sockfd = create_server_socket(DEFAULT_PORT);
@@ -9,5 +15,31 @@ int main(void) {
   }
   printf("Server socket created successfully on port %d (fd: %d)\n",
          DEFAULT_PORT, sockfd);
-  return 0;
+
+  // Accept infinite loop
+  while (1) {
+    // Create client_addr to store client info and initiate everything to 0
+    struct sockaddr_in client_addr;
+    socklen_t client_len = sizeof(client_addr);
+    memset(&client_addr, 0, client_len);
+    // Create clientfd for accept
+    int clientfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_len);
+    // Error handling
+    if (clientfd == -1) {
+      if (errno == EINTR)
+        continue;
+      perror("accept");
+      break;
+    }
+    // Covert client_ip from network-byte to string
+    char client_ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
+    // Covert client_port from network-byte to real numbers
+    int client_port = ntohs(client_addr.sin_port);
+    // Print client ip and port
+    printf("Connection from : %s:%d\n", client_ip, client_port);
+    // Close clientfd
+    close(clientfd);
+  }
+  return 1;
 }
