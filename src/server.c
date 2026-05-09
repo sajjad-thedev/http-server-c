@@ -32,6 +32,12 @@ int create_server_socket(int port) {
     close(sockfd);
     return -1;
   }
+  // Mark socket on Listen mode
+  if (listen(sockfd, BACKLOG) == -1) {
+    perror("listen");
+    close(sockfd);
+    return -1;
+  }
 
   return sockfd;
 }
